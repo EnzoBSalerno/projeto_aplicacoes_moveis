@@ -1,0 +1,52 @@
+Starting project at /app
+Starting Metro Bundler
+The following packages should be updated for best compatibility with the installed expo version:
+  react-native-screens@4.18.0 - expected version: ~4.16.0
+Your project may not work correctly until you install the expected versions of the packages.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.1% (152/251)
+Web Bundled 6602ms index.js (446 modules)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 27ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 23ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 23ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 6688ms index.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 29ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 4132ms index.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 45ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 1575ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 1847ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 38ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 2739ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 76ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 121ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
