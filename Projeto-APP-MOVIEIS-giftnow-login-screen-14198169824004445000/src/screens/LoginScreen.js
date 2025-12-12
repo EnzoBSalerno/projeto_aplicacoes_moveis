@@ -16,7 +16,7 @@ import { COLORS, SIZES, FONTS } from '../constants/theme';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { useUser } from '../context/UserContext';
-import { USER as DEFAULT_USER } from '../data/mock';
+import api from '../services/api';
 
 const LoginScreen = ({ navigation }) => {
   const { setUser } = useUser();
@@ -25,6 +25,7 @@ const LoginScreen = ({ navigation }) => {
     password: '',
   });
   const [errors, setErrors] = React.useState({});
+  const [loading, setLoading] = React.useState(false);
 
   const handleOnchange = (text, input) => {
     setInputs(prevState => ({ ...prevState, [input]: text }));
@@ -58,23 +59,27 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  const login = () => {
-    // Simulação de login
-    console.log('Login realizado com:', inputs);
+  const login = async () => {
+    setLoading(true);
+    try {
+      const response = await api.post('/login', {
+        email: inputs.email,
+        password: inputs.password,
+      });
 
-    // Atualiza o contexto do usuário
-    // Usa o email como nome se não tiver nome, ou "Usuário"
-    // Mantém o resto do mock (endereços, etc)
-    const nameFromEmail = inputs.email.split('@')[0];
-    const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-
-    setUser({
-      ...DEFAULT_USER,
-      name: capitalizedName,
-      email: inputs.email,
-    });
-
-    navigation.navigate('Main');
+      console.log('Login success:', response.data);
+      setUser(response.data);
+      navigation.navigate('Main');
+    } catch (error) {
+      console.log('Login error:', error);
+      if (error.response && error.response.status === 401) {
+          handleError('E-mail ou senha inválidos.', 'password');
+      } else {
+          handleError('Erro ao conectar ao servidor. Tente novamente.', 'password');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -127,7 +132,11 @@ const LoginScreen = ({ navigation }) => {
                    />
                 </View>
 
-                <Button title="Entrar" onPress={validate} />
+                <Button
+                    title={loading ? "Entrando..." : "Entrar"}
+                    onPress={validate}
+                    disabled={loading}
+                />
 
                 <View style={styles.signupContainer}>
                     <Text style={styles.signupText}>Não tem conta? </Text>
