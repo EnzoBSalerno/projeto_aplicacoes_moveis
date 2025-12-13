@@ -20,7 +20,8 @@ function initializeDatabase() {
       name TEXT,
       email TEXT UNIQUE,
       password TEXT,
-      avatar TEXT
+      avatar TEXT,
+      phone TEXT
     )`);
 
     // Categories Table

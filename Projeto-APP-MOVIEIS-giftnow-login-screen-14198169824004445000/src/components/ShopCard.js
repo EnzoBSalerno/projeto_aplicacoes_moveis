@@ -37,7 +37,7 @@ const ShopCard = ({ shop, onPress }) => {
            </Text>
         </View>
 
-        {shop.badges.length > 0 && (
+        {shop.badges && shop.badges.length > 0 && (
             <View style={styles.badgeContainer}>
                 {shop.badges.map((badge, index) => (
                     <View key={index} style={styles.badge}>

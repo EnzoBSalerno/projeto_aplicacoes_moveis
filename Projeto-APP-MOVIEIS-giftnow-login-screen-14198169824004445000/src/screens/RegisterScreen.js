@@ -16,7 +16,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import Checkbox from '../components/Checkbox';
 import { useUser } from '../context/UserContext';
-import { USER as DEFAULT_USER } from '../data/mock';
+import api from '../services/api';
 
 const RegisterScreen = ({ navigation }) => {
   const { setUser } = useUser();
@@ -29,6 +29,7 @@ const RegisterScreen = ({ navigation }) => {
   });
   const [errors, setErrors] = React.useState({});
   const [agreeTerms, setAgreeTerms] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const handleOnchange = (text, input) => {
     setInputs(prevState => ({ ...prevState, [input]: text }));
@@ -92,20 +93,38 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  const register = () => {
-    console.log('Registro realizado:', inputs);
+  const register = async () => {
+    setLoading(true);
+    try {
+      const response = await api.post('/register', {
+        name: inputs.name,
+        email: inputs.email,
+        password: inputs.password,
+        phone: inputs.phone,
+      });
 
-    // Atualiza o contexto do usuário
-    setUser({
-      ...DEFAULT_USER,
-      name: inputs.name,
-      email: inputs.email,
-    });
+      console.log('Registration success:', response.data);
 
-    // Alert with confirmation
-    Alert.alert("Sucesso", "Conta criada com sucesso!", [
-      { text: "OK", onPress: () => navigation.navigate('Main') }
-    ]);
+      // Update User Context with the new user data returned from backend
+      setUser(response.data);
+
+      Alert.alert("Sucesso", "Conta criada com sucesso!", [
+        { text: "OK", onPress: () => navigation.navigate('Main') }
+      ]);
+    } catch (error) {
+      console.error('Registration error:', error);
+      let msg = 'Erro ao criar conta. Tente novamente.';
+      if (error.response && error.response.data && error.response.data.error) {
+         if (error.response.data.error.includes('UNIQUE constraint failed')) {
+             msg = 'Este e-mail já está cadastrado.';
+         } else {
+             msg = error.response.data.error;
+         }
+      }
+      Alert.alert("Erro", msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // NOTE: For automated testing with Playwright, standard Alert.alert is tricky on Web.
@@ -142,6 +161,7 @@ const RegisterScreen = ({ navigation }) => {
                     label="Nome Completo"
                     iconName="person-outline"
                     placeholder="Seu nome"
+                    value={inputs.name}
                     error={errors.name}
                     onFocus={() => handleError(null, 'name')}
                     onChangeText={text => handleOnchange(text, 'name')}
@@ -151,6 +171,7 @@ const RegisterScreen = ({ navigation }) => {
                     label="E-mail"
                     iconName="mail-outline"
                     placeholder="exemplo@email.com"
+                    value={inputs.email}
                     error={errors.email}
                     keyboardType="email-address"
                     onFocus={() => handleError(null, 'email')}
@@ -162,6 +183,7 @@ const RegisterScreen = ({ navigation }) => {
                     iconName="call-outline"
                     placeholder="(00) 00000-0000"
                     keyboardType="phone-pad"
+                    value={inputs.phone}
                     error={errors.phone}
                     onFocus={() => handleError(null, 'phone')}
                     onChangeText={text => handleOnchange(text, 'phone')}
@@ -172,6 +194,7 @@ const RegisterScreen = ({ navigation }) => {
                     iconName="lock-closed-outline"
                     placeholder="Crie uma senha"
                     password
+                    value={inputs.password}
                     error={errors.password}
                     onFocus={() => handleError(null, 'password')}
                     onChangeText={text => handleOnchange(text, 'password')}
@@ -182,6 +205,7 @@ const RegisterScreen = ({ navigation }) => {
                     iconName="lock-closed-outline"
                     placeholder="Repita a senha"
                     password
+                    value={inputs.confirmPassword}
                     error={errors.confirmPassword}
                     onFocus={() => handleError(null, 'confirmPassword')}
                     onChangeText={text => handleOnchange(text, 'confirmPassword')}
@@ -195,9 +219,10 @@ const RegisterScreen = ({ navigation }) => {
                 />
 
                 <Button
-                  title="Criar conta"
+                  title={loading ? "Criando..." : "Criar conta"}
                   onPress={validate}
                   style={{ marginTop: 20 }}
+                  disabled={loading}
                 />
 
                 <View style={styles.loginContainer}>
