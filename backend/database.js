@@ -95,6 +95,21 @@ function initializeDatabase() {
             db.run("INSERT INTO users (name, email, password, avatar) VALUES (?, ?, ?, ?)", ['Jules', 'jules@email.com', '123456', 'https://randomuser.me/api/portraits/women/44.jpg']);
         }
     });
+
+    db.get("SELECT count(*) as count FROM payment_methods", (err, row) => {
+        if (row && row.count === 0) {
+            console.log("Seeding payment methods...");
+            const stmt = db.prepare("INSERT INTO payment_methods (user_id, type, brand, last4, name, icon) VALUES (?, ?, ?, ?, ?, ?)");
+            // Assuming user ID 1 exists (Jules)
+            const methods = [
+                [1, 'CREDIT_CARD', 'Mastercard', '4589', null, 'card-outline'],
+                [1, 'CREDIT_CARD', 'Visa', '1234', null, 'card-outline'],
+                [1, 'PIX', null, null, 'Pix', 'qr-code-outline']
+            ];
+            methods.forEach(m => stmt.run(m));
+            stmt.finalize();
+        }
+    });
   });
 }
 

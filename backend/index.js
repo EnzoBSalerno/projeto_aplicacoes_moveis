@@ -88,6 +88,31 @@ app.get('/shops', (req, res) => {
     });
 });
 
+// PAYMENT METHODS
+app.get('/payment-methods', (req, res) => {
+    // In a real app, we would filter by logged user (req.user.id)
+    // Here we just return all for demo, or filter by query param ?user_id=1
+    const userId = req.query.user_id || 1;
+    db.all("SELECT * FROM payment_methods WHERE user_id = ?", [userId], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
+// CART/ORDER SUMMARY (Mocked endpoint for now)
+app.get('/cart/summary', (req, res) => {
+    // In a real app, calculate from cart items in DB
+    const summary = {
+        subtotal: 'R$ 149,90',
+        delivery: 'R$ 12,00',
+        discount: '- R$ 10,00',
+        total: 'R$ 151,90',
+    };
+    res.json(summary);
+});
+
 app.listen(port, () => {
   console.log(`Backend server listening on port ${port}`);
 });

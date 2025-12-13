@@ -11,12 +11,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, SIZES, SHADOWS } from '../constants/theme';
-import { PAYMENT_METHODS, ORDER_SUMMARY } from '../data/mock';
 import PaymentMethodItem from '../components/PaymentMethodItem';
 import Button from '../components/Button';
+import { useUser } from '../context/UserContext';
+import api from '../services/api';
 
 const PaymentScreen = ({ navigation }) => {
+  const { user } = useUser();
   const [selectedMethod, setSelectedMethod] = React.useState(null);
+  const [paymentMethods, setPaymentMethods] = React.useState([]);
+  const [orderSummary, setOrderSummary] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+        try {
+            // Fetch payment methods for logged user (or default user 1)
+            const userId = user?.id || 1;
+            const [methodsRes, summaryRes] = await Promise.all([
+                api.get(`/payment-methods?user_id=${userId}`),
+                api.get('/cart/summary')
+            ]);
+            setPaymentMethods(methodsRes.data);
+            setOrderSummary(summaryRes.data);
+        } catch (error) {
+            console.error('Error fetching payment data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchData();
+  }, [user]);
 
   const handleSelect = (id) => {
     setSelectedMethod(id);
@@ -42,24 +67,26 @@ const PaymentScreen = ({ navigation }) => {
   const renderFooter = () => (
     <View style={styles.footerContainer}>
         {/* Order Summary */}
-        <View style={styles.summaryContainer}>
-            <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Subtotal</Text>
-                <Text style={styles.summaryValue}>{ORDER_SUMMARY.subtotal}</Text>
+        {orderSummary && (
+            <View style={styles.summaryContainer}>
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Subtotal</Text>
+                    <Text style={styles.summaryValue}>{orderSummary.subtotal}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Entrega</Text>
+                    <Text style={styles.summaryValue}>{orderSummary.delivery}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                    <Text style={[styles.summaryLabel, { color: COLORS.success }]}>Desconto</Text>
+                    <Text style={[styles.summaryValue, { color: COLORS.success }]}>{orderSummary.discount}</Text>
+                </View>
+                <View style={[styles.summaryRow, styles.totalRow]}>
+                    <Text style={styles.totalLabel}>Total</Text>
+                    <Text style={styles.totalValue}>{orderSummary.total}</Text>
+                </View>
             </View>
-            <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Entrega</Text>
-                <Text style={styles.summaryValue}>{ORDER_SUMMARY.delivery}</Text>
-            </View>
-            <View style={styles.summaryRow}>
-                <Text style={[styles.summaryLabel, { color: COLORS.success }]}>Desconto</Text>
-                <Text style={[styles.summaryValue, { color: COLORS.success }]}>{ORDER_SUMMARY.discount}</Text>
-            </View>
-            <View style={[styles.summaryRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalValue}>{ORDER_SUMMARY.total}</Text>
-            </View>
-        </View>
+        )}
 
         {/* Action Button */}
         <Button
@@ -69,13 +96,21 @@ const PaymentScreen = ({ navigation }) => {
     </View>
   );
 
+  if (loading) {
+      return (
+          <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+              <Text>Carregando...</Text>
+          </SafeAreaView>
+      );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {renderHeader()}
 
       <FlatList
-        data={PAYMENT_METHODS}
-        keyExtractor={item => item.id}
+        data={paymentMethods}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
             <PaymentMethodItem
                 method={item}
