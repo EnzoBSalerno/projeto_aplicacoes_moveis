@@ -11,14 +11,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, SIZES, FONTS } from '../constants/theme';
-import { CATEGORIES, SHOPS } from '../data/mock';
 import SearchBar from '../components/SearchBar';
 import CategoryItem from '../components/CategoryItem';
 import ShopCard from '../components/ShopCard';
 import { useUser } from '../context/UserContext';
+import api from '../services/api';
 
 const HomeScreen = ({ navigation }) => {
   const { user } = useUser();
+  const [categories, setCategories] = React.useState([]);
+  const [shops, setShops] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoriesRes, shopsRes] = await Promise.all([
+          api.get('/categories'),
+          api.get('/shops'),
+        ]);
+        setCategories(categoriesRes.data);
+        setShops(shopsRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -52,7 +74,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Categorias</Text>
         <FlatList
-          data={CATEGORIES}
+          data={categories}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id.toString()}
@@ -75,19 +97,25 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <FlatList
-        data={SHOPS}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-            <ShopCard
-                shop={item}
-                onPress={() => console.log('Loja:', item.name)}
-            />
-        )}
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Carregando...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={shops}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
+              <ShopCard
+                  shop={item}
+                  onPress={() => console.log('Loja:', item.name)}
+              />
+          )}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 };
